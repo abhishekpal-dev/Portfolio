@@ -52,6 +52,7 @@ function NavIcon({ icon }) {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -74,26 +75,81 @@ export default function Navbar() {
     }
   }, [])
 
+  // Close drawer when clicking outside
+  useEffect(() => {
+    if (!menuOpen) return
+    const close = e => {
+      if (!e.target.closest('nav') && !e.target.closest('.nav-mobile-drawer')) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [menuOpen])
+
+  const closeMenu = () => setMenuOpen(false)
+
   return (
-    <nav id="nav" className={scrolled ? 'scrolled' : ''}>
-      <a href="#hero" className="nav-logo">
-        AP<span>.</span>
-      </a>
-      <div className="nav-dock">
+    <>
+      <nav id="nav" className={scrolled ? 'scrolled' : ''}>
+        <a href="#hero" className="nav-logo">
+          AP<span>.</span>
+        </a>
+
+        {/* Desktop icon dock */}
+        <div className="nav-dock">
+          {NAV_LINKS.map(link => (
+            <a
+              key={link.href}
+              href={link.href}
+              title={link.title}
+              className={activeSection === link.href.slice(1) ? 'active' : ''}
+            >
+              <NavIcon icon={link.icon} />
+            </a>
+          ))}
+        </div>
+
+        {/* Desktop resume button */}
+        <a href="/Abhishek_Pal_Software_Developer_Resume.pdf" className="resume-btn" download>
+          ↓ Resume
+        </a>
+
+        {/* Mobile hamburger */}
+        <button
+          className={`nav-hamburger${menuOpen ? ' open' : ''}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </nav>
+
+      {/* Mobile slide-down drawer */}
+      <div className={`nav-mobile-drawer${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
         {NAV_LINKS.map(link => (
           <a
             key={link.href}
             href={link.href}
-            title={link.title}
             className={activeSection === link.href.slice(1) ? 'active' : ''}
+            onClick={closeMenu}
           >
             <NavIcon icon={link.icon} />
+            {link.title}
           </a>
         ))}
+        <a
+          href="/Abhishek_Pal_Software_Developer_Resume.pdf"
+          className="nav-drawer-resume"
+          download
+          onClick={closeMenu}
+        >
+          ↓ Download Resume
+        </a>
       </div>
-      <a href="/Abhishek_Pal_Software_Developer_Resume.pdf" className="resume-btn" download>
-        ↓ Resume
-      </a>
-    </nav>
+    </>
   )
 }

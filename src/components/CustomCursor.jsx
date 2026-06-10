@@ -5,6 +5,9 @@ export default function CustomCursor() {
   const ringRef = useRef(null)
 
   useEffect(() => {
+    // Skip all cursor logic on touch/coarse-pointer devices
+    if (!window.matchMedia('(pointer: fine)').matches) return
+
     const cursor = cursorRef.current
     const ring = ringRef.current
     let mx = 0, my = 0, rx = 0, ry = 0
